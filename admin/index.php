@@ -1,6 +1,15 @@
 <?php
+session_start();
+
 if($_POST){
+  if(($_POST['usuario']=="limber")&&($_POST['contracenia']=="")){
+    $_SESSION['usuario']="ok";
+    $_SESSION['nombreUsuario']="limber";
     header('Location:inicio.php');
+  }else{
+    $mensaje="usuario o contraceña incorrecto";
+  }
+    
 }
 ?>
 <!doctype html>
@@ -32,6 +41,12 @@ if($_POST){
                          INICIAR SESION
                     </div>
                     <div class="card-body">
+                      <?php if(isset($mensaje)){ ?>
+
+                    <div class="alert alert-danger" role="alert">
+                      <?php echo $mensaje; ?>
+                    </div>
+                    <?php }?>
 
                         <form method="POST">
 

@@ -2,49 +2,27 @@
 include("template/cabezera.php"); 
 ?>
 
+<?php
+include ("admin/config/bd.php");
+
+$sentenciaSQL= $conexion->prepare("SELECT * FROM productos");
+$sentenciaSQL->execute();
+$listaProductos=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
+?>
+<?php foreach($listaProductos as $productos){ ?>
 <div class="col-md-3">
 <div class="card">
 
-    <img class="card-img-top" src="./img/tele.png" alt="">
+    <img class="card-img-top" src="./img/<?php echo $productos['imagen'] ?>" alt="">
     <div class="card-body">
-        <h4 class="card-title">Televisor SAMSUNG</h4>
-        <a name="" id="" class="btn btn-primary" href="#" role="button">Ver más</a>
+        <h4 class="card-title"><?php echo $productos['marca'] ?></h4>
+        <a name="" id="" class="btn btn-primary" href=""role="button">Ver más</a>
 </div>
 </div>
 </div>
 
-<div class="col-md-3">
-<div class="card">
+<?php } ?>
 
-    <img class="card-img-top" src="./img/tele.png" alt="">
-    <div class="card-body">
-        <h4 class="card-title">Televisor SONY</h4>
-        <a name="" id="" class="btn btn-primary" href="#" role="button">Ver más</a>
-</div>
-</div>
-</div>
-
-<div class="col-md-3">
-<div class="card">
-
-    <img class="card-img-top" src="./img/tele.png" alt="">
-    <div class="card-body">
-        <h4 class="card-title">Televisor  LG</h4>
-        <a name="" id="" class="btn btn-primary" href="#" role="button">Ver más</a>
-</div>
-</div>
-</div>
-
-<div class="col-md-3">
-<div class="card">
-
-    <img class="card-img-top" src="./img/tele.png" alt="">
-    <div class="card-body">
-        <h4 class="card-title">Televisor HUAWEY</h4>
-        <a name="" id="" class="btn btn-primary" href="#" role="button">Ver más</a>
-</div>
-</div>
-</div>
 
 
 <?php 
