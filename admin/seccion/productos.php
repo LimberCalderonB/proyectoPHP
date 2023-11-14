@@ -1,7 +1,153 @@
+
+
 <?php
 include("../template/cabezera.php");
 ?>
+<div class="container">
+        <br/>
+        <div class="row">
 <?php
+//----------------------------------------------------------------------------------------------------------
+//                                  CATEGORIAS DE TELEVISORES
+//----------------------------------------------------------------------------------------------------------
+$txtidCategoria = (isset($_POST['txtidCategoria'])) ? $_POST['txtidCategoria'] : "";
+$txtnombre = (isset($_POST['txtnombre'])) ? $_POST['txtnombre'] : "";
+$pulsar= (isset($_POST['pulsar'])) ? $_POST['pulsar'] : "";
+
+include("../config/bd.php");
+
+switch ($pulsar) {
+
+     case "Agregar":
+          $sentenciaSQL = $conexion->prepare("INSERT INTO categoria (nombre) VALUES (?)");
+          $sentenciaSQL->bindParam(1, $txtnombre);
+          $sentenciaSQL->execute();
+          header("Location:productos.php"); // Redirige a la página de categorías
+          break;
+      
+
+    case "Modificar":
+        $sentenciaSQL = $conexion->prepare("UPDATE categoria SET nombre=:nombre WHERE idCategoria=:idCategoria");
+        $sentenciaSQL->bindParam(':nombre', $txtnombre);
+        $sentenciaSQL->bindParam(':idCategoria', $txtidCategoria);
+        $sentenciaSQL->execute();
+        header("Location:productos.php");
+        break;
+      
+    case "Cancelar":
+        header("Location:productos.php");
+        break;
+
+        case "Seleccionar":
+          $sentenciaSQL = $conexion->prepare("SELECT * FROM categoria WHERE idCategoria=:idCategoria");
+          $sentenciaSQL->bindParam(':idCategoria', $txtidCategoria); // Modificación aquí
+          $sentenciaSQL->execute();
+          $categoria = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+          if ($categoria) {
+              $txtidCategoria = $categoria['idCategoria'];
+              $txtnombre = $categoria['nombre'];
+          }
+          break;
+      
+      
+
+    case "Borrar":
+        $sentenciaSQL = $conexion->prepare("DELETE FROM categoria WHERE idCategoria=:idCategoria");
+        $sentenciaSQL->bindParam(':idCategoria', $txtidCategoria);
+        $sentenciaSQL->execute();
+        header("Location:productos.php");
+        break;
+
+          
+}
+
+$sentenciaSQL = $conexion->prepare("SELECT * FROM categoria");
+$sentenciaSQL->execute();
+$listaCategoria = $sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
+?>
+<!-- ... tu código HTML ... -->
+
+
+
+<div class="col-md-4">
+    
+    <div class="card">
+    <div class="card-header">
+INSERTAR CATEGORIA
+</div>
+
+<div class="card-body">
+ 
+<form method="POST" enctype="multipart/form-data">
+
+
+ <div class = "form-group">
+      <label for="txtidCategoria">ID-CATEGORIA</label>
+      <input type="text"required readonly class="form-control" value="<?php echo $txtidCategoria; ?> " name="txtidCategoria" id="txtidCategoria" placeholder="ID DE CATEGORIA : ">
+ </div>
+
+ <div class = "form-group">
+      <label for="txtnombre">NOMBRE DE CATEGORIA</label>
+      <input type="text" required class="form-control" value="<?php echo $txtnombre; ?>" name="txtnombre" id="txtnombre" placeholder="Categoria:">
+ </div>
+
+ <div class="btn-group" role="group" aria-label="">
+             <button type="submit" name="pulsar"<?php echo ($pulsar=="Seleccionar")?"disabled":""; ?> value="Agregar" class="btn btn-info">AGREGAR</button>
+             <button type="submit" name="pulsar"<?php echo ($pulsar!="Seleccionar")?"disabled":""; ?> value="Modificar" class="btn btn-warning">MODIFICAR</button>
+             <button type="submit" name="pulsar"<?php echo ($pulsar!="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-info">CANCELAR</button>
+       </div>
+    </form>
+</div>
+</div>
+</div>
+
+<div class="col-md-8">
+    
+    <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>ID-CATEGORIA</th>              
+                <th>NOMBRE CATEGORIA</th>
+                
+            </tr>
+          </thead>
+          <tbody>
+               <?php foreach($listaCategoria as $categoria) { ?>
+               <tr>
+                
+                <td> <?php echo $categoria['idCategoria']?></td>
+                <td> <?php echo $categoria['nombre']?></td>
+
+                <td>
+                <form method="post">
+                <input type="hidden" name="txtidCategoria" id="txtidCategoria" value="<?php echo $categoria['idCategoria'] ?>"/>
+
+
+                    <input type="submit" name = "pulsar" value="Seleccionar" class="btn btn-primary"/>
+                    <input type="submit" name = "pulsar" value="Borrar" class="btn btn-danger"/>
+                </form>
+                </td>
+                
+               </tr>
+            <?php }?>
+           </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="container">
+        <br/>
+        <div class="row">
+
+<?php
+
+//-------------------------------------------------------------------------
+//                           TELEVISORES
+
+
 
 $txtID=(isset($_POST['txtID']))?$_POST['txtID']:"";
 $txtimagen=(isset($_FILES['txtimagen']['name']))?$_FILES['txtimagen']['name']:"";

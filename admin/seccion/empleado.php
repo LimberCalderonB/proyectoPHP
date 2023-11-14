@@ -2,6 +2,7 @@
 <?php
 include("../template/cabezera.php");
 ?>
+
 <?php
 
 $txtID=(isset($_POST['txtID']))?$_POST['txtID']:"";
@@ -112,12 +113,6 @@ switch($accion){
           $sentenciaSQL->bindParam(':id', $txtID);
           $sentenciaSQL->execute();
 
-          /*$sentenciaSQL= $conexion->prepare("UPDATE numero_celular_empleado SET numero_celular_empleado=:numero_celular_empleado WHERE id=:id");
-          $sentenciaSQL->bindParam(':numero_celular_empleado', $txtnumero_celular_empleado);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();*/
-
-          
 
           header("Location:empleado.php");
 
@@ -129,19 +124,7 @@ switch($accion){
           break;
                  
           case "Seleccionar":
-              /* $sentenciaSQL = $conexion->prepare("SELECT * FROM empleado WHERE id=:id");
-               $sentenciaSQL->bindParam(':id', $txtID);
-               $sentenciaSQL->execute();
-               $empleado = $sentenciaSQL->fetch(PDO::FETCH_LAZY);
-               
-               $txtimagen = $empleado['imagen'];
-               $txtnombre = $empleado['nombre'];            
-               $txtapellido1 = $empleado['apellido1'];
-               $txtapellido2 = $empleado['apellido2'];
-               $txtcargo = $empleado['cargo'];
-               $txtsalario = $empleado['salario'];
-               $txtdireccion = $empleado['direccion'];
-               $txtnumero_celular_empleado = $empleado['numero_celular_empleado'];*/
+              
 
                $sentenciaSQL = $conexion->prepare("SELECT * FROM empleado WHERE id=:id");
                $sentenciaSQL->bindParam(':id', $txtID);
@@ -168,10 +151,8 @@ if ($empleado) {
     $txtdireccion = "";
     $txtnumero_celular_empleado = "";
 }
-
-           
-               break;
-           
+         
+               break;         
                  
      case "Borrar":
           $sentenciaSQL= $conexion->prepare("SELECT imagen FROM empleado WHERE id=:id");
@@ -189,7 +170,6 @@ if ($empleado) {
           $sentenciaSQL->bindParam(':id', $txtID);
           $sentenciaSQL->execute();
 
-          //$txt=$productos[''];
           header("Location:empleado.php");
 
           break;

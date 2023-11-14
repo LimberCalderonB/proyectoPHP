@@ -14,11 +14,4 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-/*try {
-     $conexion=new PDO("mysql:host=$host;dbname=$bd",$usuario,$contrasenia);
-     
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-    }*/
-
 ?>
