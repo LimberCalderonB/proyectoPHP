@@ -110,7 +110,7 @@ switch($accion){
                $sentenciaSQL->execute();
                $productos = $sentenciaSQL->fetch(PDO::FETCH_LAZY);
            
-               $txtCategoria_idCategoria = $productos['Categoria_idCategoria']; // Fix the typo here
+               $txtCategoria_idCategoria = $productos['Categoria_idCategoria']; 
                $txtimagen = $productos['imagen'];
                $txtprecio = $productos['precio'];
                $txtmarca = $productos['marca'];
@@ -136,7 +136,7 @@ switch($accion){
           $sentenciaSQL->bindParam(':id', $txtID);
           $sentenciaSQL->execute();
 
-          //$txt=$productos[''];
+          
           header("Location:productos.php");
 
           break;
