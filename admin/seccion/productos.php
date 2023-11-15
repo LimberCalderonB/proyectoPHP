@@ -1,11 +1,8 @@
 
-
 <?php
 include("../template/cabezera.php");
 ?>
-<div class="container">
-        <br/>
-        <div class="row">
+
 <?php
 //----------------------------------------------------------------------------------------------------------
 //                                  CATEGORIAS DE TELEVISORES
@@ -14,25 +11,50 @@ $txtidCategoria = (isset($_POST['txtidCategoria'])) ? $_POST['txtidCategoria'] :
 $txtnombre = (isset($_POST['txtnombre'])) ? $_POST['txtnombre'] : "";
 $pulsar= (isset($_POST['pulsar'])) ? $_POST['pulsar'] : "";
 
+
 include("../config/bd.php");
 
 switch ($pulsar) {
 
-     case "Agregar":
-          $sentenciaSQL = $conexion->prepare("INSERT INTO categoria (nombre) VALUES (?)");
+        case "Agregar":
+
+          $sentenciaSQL = $conexion->prepare("SELECT COUNT(*) AS count FROM categoria WHERE nombre = ?");
           $sentenciaSQL->bindParam(1, $txtnombre);
           $sentenciaSQL->execute();
-          header("Location:productos.php"); // Redirige a la página de categorías
-          break;
-      
+          $resultado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+  
+          if ($resultado['count'] > 0) {
 
-    case "Modificar":
-        $sentenciaSQL = $conexion->prepare("UPDATE categoria SET nombre=:nombre WHERE idCategoria=:idCategoria");
-        $sentenciaSQL->bindParam(':nombre', $txtnombre);
-        $sentenciaSQL->bindParam(':idCategoria', $txtidCategoria);
-        $sentenciaSQL->execute();
-        header("Location:productos.php");
-        break;
+               echo "la categoría ya existe";
+          } else {
+
+              $sentenciaSQL = $conexion->prepare("INSERT INTO categoria (nombre) VALUES (?)");
+              $sentenciaSQL->bindParam(1, $txtnombre);
+              $sentenciaSQL->execute();
+              header("Location:productos.php");
+          }
+          break;
+  
+      case "Modificar":
+
+          $sentenciaSQL = $conexion->prepare("SELECT COUNT(*) AS count FROM categoria WHERE nombre = ? AND idCategoria != ?");
+          $sentenciaSQL->bindParam(1, $txtnombre);
+          $sentenciaSQL->bindParam(2, $txtidCategoria);
+          $sentenciaSQL->execute();
+          $resultado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+  
+          if ($resultado['count'] > 0) {
+
+               echo "El nombre ya existe";
+          } else {
+
+              $sentenciaSQL = $conexion->prepare("UPDATE categoria SET nombre=:nombre WHERE idCategoria=:idCategoria");
+              $sentenciaSQL->bindParam(':nombre', $txtnombre);
+              $sentenciaSQL->bindParam(':idCategoria', $txtidCategoria);
+              $sentenciaSQL->execute();
+              header("Location:productos.php");
+          }
+          break;
       
     case "Cancelar":
         header("Location:productos.php");
@@ -64,10 +86,11 @@ switch ($pulsar) {
 $sentenciaSQL = $conexion->prepare("SELECT * FROM categoria");
 $sentenciaSQL->execute();
 $listaCategoria = $sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
+
+
+ 
+
 ?>
-<!-- ... tu código HTML ... -->
-
-
 
 <div class="col-md-4">
     
@@ -142,11 +165,12 @@ INSERTAR CATEGORIA
         <br/>
         <div class="row">
 
+
 <?php
 
 //-------------------------------------------------------------------------
 //                           TELEVISORES
-
+//-------------------------------------------------------------------------
 
 
 $txtID=(isset($_POST['txtID']))?$_POST['txtID']:"";
@@ -161,111 +185,110 @@ $txttamanio=(isset($_POST['txttamanio']))?$_POST['txttamanio']:"";
 include("../config/bd.php");
 
 switch($accion){
-    
+
+     
           case "Agregar":
-               $sentenciaSQL = $conexion->prepare("INSERT INTO productos (imagen, Categoria_idCategoria, precio, marca, modelo, tamanio )  
-                VALUES (?,?,?,?,?,? )");
+              // Verificar si el modelo de televisor ya existe en la base de datos
+              $sentenciaSQL = $conexion->prepare("SELECT COUNT(*) AS count FROM productos WHERE modelo = ?");
+              $sentenciaSQL->bindParam(1, $txtmodelo);
+              $sentenciaSQL->execute();
+              $resultado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+      
+              if ($resultado['count'] > 0) {
+                  
+                   echo "El modelo de televisor ya existe. Por favor, elija otro modelo.";
+              } else {
+      
+                  $sentenciaSQL = $conexion->prepare("INSERT INTO productos (imagen, Categoria_idCategoria, precio, marca, modelo, tamanio)  
+                      VALUES (?, ?, ?, ?, ?, ?)");
+                  $fecha = new DateTime();
+                  $nombreArchivo = ($txtimagen != "") ? $fecha->getTimestamp() . "_" . $_FILES["txtimagen"]["name"] : "imagen";
+                  $tmpimagen = $_FILES["txtimagen"]["tmp_name"];
+      
+                  if ($tmpimagen != "") {
+                      move_uploaded_file($tmpimagen, "../../img/" . $nombreArchivo);
+                  }
+      
+                  $sentenciaSQL->bindParam(1, $nombreArchivo);
+                  $sentenciaSQL->bindParam(2, $txtCategoria_idCategoria);
+                  $sentenciaSQL->bindParam(3, $txtprecio);
+                  $sentenciaSQL->bindParam(4, $txtmarca);
+                  $sentenciaSQL->bindParam(5, $txtmodelo);
+                  $sentenciaSQL->bindParam(6, $txttamanio);
+                  
+                  $sentenciaSQL->execute();
+                  header("Location:productos.php");
+              }
+              break;
+      
+          case "Modificar":
 
-               $fecha=new DateTime();
-               $nombreArchibo=($txtimagen!="")?$fecha->getTimestamp()."_".$_FILES["txtimagen"]["name"]:"imagen";
-               $tmpimagen=$_FILES["txtimagen"]["tmp_name"];
-
-               if($tmpimagen!=""){
-                    move_uploaded_file($tmpimagen,"../../img/".$nombreArchibo);
-               }
-               $sentenciaSQL->bindParam(1, $nombreArchibo);
-
-               $sentenciaSQL->bindParam(2, $txtCategoria_idCategoria);
-               $sentenciaSQL->bindParam(3, $txtprecio);
-               $sentenciaSQL->bindParam(4, $txtmarca);
-               $sentenciaSQL->bindParam(5, $txtmodelo);
-               $sentenciaSQL->bindParam(6, $txttamanio);              
+              $sentenciaSQL = $conexion->prepare("SELECT COUNT(*) AS count FROM productos WHERE modelo = ? AND id != ?");
+              $sentenciaSQL->bindParam(1, $txtmodelo);
+              $sentenciaSQL->bindParam(2, $txtID);
+              $sentenciaSQL->execute();
+              $resultado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+      
+              if ($resultado['count'] > 0) {
+                  
+                   echo "El modelo de televisor ya existe para otro registro. Por favor, elija otro modelo.";
+              } else {
+      
+                  $sentenciaSQL = $conexion->prepare("UPDATE productos SET imagen=?, Categoria_idCategoria=?, precio=?, marca=?, modelo=?, tamanio=? WHERE id=?");
+                  if ($txtimagen != "") {
+                      $fecha = new DateTime();
+                      $nombreArchivo = $fecha->getTimestamp() . "_" . $_FILES["txtimagen"]["name"];
+                      $tmpimagen = $_FILES["txtimagen"]["tmp_name"];
+                      move_uploaded_file($tmpimagen, "../../img/" . $nombreArchivo);
+                      $sentenciaSQL->bindParam(1, $nombreArchivo);
+                  } else {
+                      $sentenciaSQL->bindParam(1, $txtimagen);
+                  }
+      
+                  $sentenciaSQL->bindParam(2, $txtCategoria_idCategoria);
+                  $sentenciaSQL->bindParam(3, $txtprecio);
+                  $sentenciaSQL->bindParam(4, $txtmarca);
+                  $sentenciaSQL->bindParam(5, $txtmodelo);
+                  $sentenciaSQL->bindParam(6, $txttamanio);
+                  $sentenciaSQL->bindParam(7, $txtID);
+                  
+                  $sentenciaSQL->execute();
+                  header("Location:productos.php");
+              }
+              break;
           
-               $sentenciaSQL->execute();
-
-               header("Location:productos.php");
-           break;
-           
-     case "Modificar":
-          
-
-          if($txtimagen!=""){
-               
-               $fecha=new DateTime();
-               $nombreArchibo=($txtimagen!="")?$fecha->getTimestamp()."_".$_FILES["txtimagen"]["name"]:"imagen";
-               $tmpimagen=$_FILES["txtimagen"]["tmp_name"];
-               move_uploaded_file($tmpimagen,"../../img/".$nombreArchibo);
-
-               $sentenciaSQL= $conexion->prepare("SELECT imagen FROM productos WHERE id=:id");
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-          $productos=$sentenciaSQL->fetch(PDO::FETCH_LAZY);
-
-          if (isset($productos["imagen"])&&($productos["imagen"]!="imagen")){
-               if(file_exists("../../img/".$productos["imagen"])){
-                    unlink("../../img/".$productos["imagen"]);
-               }
-          }
-
-
-
-          $sentenciaSQL= $conexion->prepare("UPDATE productos SET imagen=:imagen WHERE id=:id");
-          $sentenciaSQL->bindParam(':imagen', $nombreArchibo);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          }
-
-          $sentenciaSQL= $conexion->prepare("UPDATE productos SET Categoria_idCategoria=:Categoria_idCategoria WHERE id=:id");
-          $sentenciaSQL->bindParam('Categoria_idCategoria', $txtCategoria_idCategoria);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          $sentenciaSQL= $conexion->prepare("UPDATE productos SET precio=:precio WHERE id=:id");
-          $sentenciaSQL->bindParam(':precio', $txtprecio);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          $sentenciaSQL= $conexion->prepare("UPDATE productos SET marca=:marca WHERE id=:id");
-          $sentenciaSQL->bindParam(':marca', $txtmarca);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          $sentenciaSQL= $conexion->prepare("UPDATE productos SET modelo=:modelo WHERE id=:id");
-          $sentenciaSQL->bindParam(':modelo', $txtmodelo);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          $sentenciaSQL= $conexion->prepare("UPDATE productos SET tamanio=:tamanio WHERE id=:id");
-          $sentenciaSQL->bindParam(':tamanio', $txttamanio);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          header("Location:productos.php");
-
-          break;
      case "Cancelar":
                header("Location:productos.php");
                break;
            
           break;
-                 
+
+
           case "Seleccionar":
                $sentenciaSQL = $conexion->prepare("SELECT * FROM productos WHERE id=:id");
                $sentenciaSQL->bindParam(':id', $txtID);
                $sentenciaSQL->execute();
-               $productos = $sentenciaSQL->fetch(PDO::FETCH_LAZY);
+               $productoSeleccionado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
            
-               $txtCategoria_idCategoria = $productos['Categoria_idCategoria']; 
-               $txtimagen = $productos['imagen'];
-               $txtprecio = $productos['precio'];
-               $txtmarca = $productos['marca'];
-               $txtmodelo = $productos['modelo'];
-               $txttamanio = $productos['tamanio'];
+               $sentenciaVerificacion = $conexion->prepare("SELECT COUNT(*) AS count FROM productos WHERE modelo = ? AND id != ?");
+               $sentenciaVerificacion->bindParam(1, $productoSeleccionado['modelo']);
+               $sentenciaVerificacion->bindParam(2, $txtID);
+               $sentenciaVerificacion->execute();
+               $resultadoVerificacion = $sentenciaVerificacion->fetch(PDO::FETCH_ASSOC);
            
+               if ($resultadoVerificacion['count'] > 0) {
+                   echo "El modelo de televisor ya existe para otro registro. Por favor, elija otro modelo.";
+               } else {
+
+                   $txtCategoria_idCategoria = $productoSeleccionado['Categoria_idCategoria'];
+                   $txtimagen = $productoSeleccionado['imagen'];
+                   $txtprecio = $productoSeleccionado['precio'];
+                   $txtmarca = $productoSeleccionado['marca'];
+                   $txtmodelo = $productoSeleccionado['modelo'];
+                   $txttamanio = $productoSeleccionado['tamanio'];
+               }
                break;
-           
-                 
+                  
      case "Borrar":
           $sentenciaSQL= $conexion->prepare("SELECT imagen FROM productos WHERE id=:id");
           $sentenciaSQL->bindParam(':id', $txtID);
