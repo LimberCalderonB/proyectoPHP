@@ -47,7 +47,10 @@ if(!isset($_SESSION['usuario'])){
             echo $url;?>/admin/seccion/factura.php">Facturas</a>
 
             <a class="nav-item nav-link" href="<?php
-            echo $url;?>/admin/seccion/almacen.php">Almacen</a>
+            echo $url;?>/admin/seccion/pedido.php">Lista Proveedores</a>
+
+            <a class="nav-item nav-link" href="<?php
+            echo $url;?>/admin/seccion/compra.php">Pedidos</a>
 
             <a class="nav-item nav-link" href="<?php
             echo $url;?>/admin/seccion/cerrar.php">Cerrar Sesion</a>

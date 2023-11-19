@@ -12,7 +12,7 @@ $accion=(isset($_POST['accion']))?$_POST['accion']:"";
 $txtnombre=(isset($_POST['txtnombre']))?$_POST['txtnombre']:"";
 $txtapellido1=(isset($_POST['txtapellido1']))?$_POST['txtapellido1']:"";
 $txtapellido2=(isset($_POST['txtapellido2']))?$_POST['txtapellido2']:"";
-$txtcargo=(isset($_POST['txtcargo']))?$_POST['txtcargo']:"";
+
 $txtsalario=(isset($_POST['txtsalario']))?$_POST['txtsalario']:"";
 $txtdireccion=(isset($_POST['txtdireccion']))?$_POST['txtdireccion']:"";
 $txtnumero_celular_empleado=(isset($_POST['txtnumero_celular_empleado']))?$_POST['txtnumero_celular_empleado']:"";
@@ -21,11 +21,10 @@ include("../config/bd.php");
 
 switch($accion){
 
-     //INSERT INTO `empleado` (`id`, `nombre`, `apellido1`, `apellido2`, `cargo`, `salario`, `direccion`, `numero_celular_empleado`, `imagen`) VALUES (NULL, 'limber', 'calderon', 'bernabe', 'vendedor', '2000', 'villa satelite', '75497941', imagen)
-    
+
           case "Agregar":
 
-               $sentenciaSQL = $conexion->prepare("INSERT INTO empleado (imagen, nombre, apellido1, apellido2, cargo, salario, direccion, numero_celular_empleado) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)");
+               $sentenciaSQL = $conexion->prepare("INSERT INTO empleado (imagen, nombre, apellido1, apellido2, salario, direccion, numero_celular_empleado) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
 
                $fecha=new DateTime();
                $nombreArchibo=($txtimagen!="")?$fecha->getTimestamp()."_".$_FILES["txtimagen"]["name"]:"imagen";
@@ -38,11 +37,10 @@ switch($accion){
                $sentenciaSQL->bindParam(2, $txtnombre);
                $sentenciaSQL->bindParam(3, $txtapellido1);
                $sentenciaSQL->bindParam(4, $txtapellido2);
-               $sentenciaSQL->bindParam(5, $txtcargo);
-               $sentenciaSQL->bindParam(6, $txtsalario);
-               $sentenciaSQL->bindParam(7, $txtdireccion);   
+               $sentenciaSQL->bindParam(5, $txtsalario);
+               $sentenciaSQL->bindParam(6, $txtdireccion);   
                  
-               $sentenciaSQL->bindParam(8, $txtnumero_celular_empleado);             
+               $sentenciaSQL->bindParam(7, $txtnumero_celular_empleado);             
                $sentenciaSQL->execute();
 
                header("Location:empleado.php");
@@ -79,7 +77,7 @@ switch($accion){
           }
 
           $sentenciaSQL= $conexion->prepare("UPDATE empleado SET nombre=:nombre WHERE id=:id");
-          $sentenciaSQL->bindParam('nombre', $txtnombre);
+          $sentenciaSQL->bindParam(':nombre', $txtnombre);
           $sentenciaSQL->bindParam(':id', $txtID);
           $sentenciaSQL->execute();
 
@@ -90,11 +88,6 @@ switch($accion){
 
           $sentenciaSQL= $conexion->prepare("UPDATE empleado SET apellido2=:apellido2 WHERE id=:id");
           $sentenciaSQL->bindParam(':apellido2', $txtapellido2);
-          $sentenciaSQL->bindParam(':id', $txtID);
-          $sentenciaSQL->execute();
-
-          $sentenciaSQL= $conexion->prepare("UPDATE empleado SET cargo=:cargo WHERE id=:id");
-          $sentenciaSQL->bindParam(':cargo', $txtcargo);
           $sentenciaSQL->bindParam(':id', $txtID);
           $sentenciaSQL->execute();
 
@@ -136,7 +129,6 @@ if ($empleado) {
     $txtnombre = $empleado['nombre'];            
     $txtapellido1 = $empleado['apellido1'];
     $txtapellido2 = $empleado['apellido2'];
-    $txtcargo = $empleado['cargo'];
     $txtsalario = $empleado['salario'];
     $txtdireccion = $empleado['direccion'];
     $txtnumero_celular_empleado = $empleado['numero_celular_empleado'];
@@ -146,7 +138,6 @@ if ($empleado) {
     $txtnombre = "";
     $txtapellido1 = "";
     $txtapellido2 = "";
-    $txtcargo = "";
     $txtsalario = "";
     $txtdireccion = "";
     $txtnumero_celular_empleado = "";
@@ -206,43 +197,38 @@ $listaempleado=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
 
         <div class = "form-group">
              <label for="txtnombre">Nombre</label>
-             <input type="text"required  class="form-control" value="<?php echo $txtnombre; ?> " name="txtnombre" id="txtnombre" placeholder="Nombre : ">
+             <input type="text"  class="form-control" value="<?php echo $txtnombre; ?> " name="txtnombre" id="txtnombre" placeholder="Nombre : ">
         </div>
 
         <div class = "form-group">
              <label for="txtapellido1">Primer Apellido</label>
-             <input type="text" required class="form-control" value="<?php echo $txtapellido1; ?>" name="txtapellido1" id="txtapellido1" placeholder="Primer Apellido : ">
+             <input type="text" class="form-control" value="<?php echo $txtapellido1; ?>" name="txtapellido1" id="txtapellido1" placeholder="Primer Apellido : ">
         </div>
 
         <div class = "form-group">
              <label for="txtapellido2">Segundo Apellido</label>
-             <input type="text" required class="form-control" value="<?php echo $txtapellido2; ?>" name="txtapellido2" id="txtapellido2" placeholder="Segundo Apellido : ">
-        </div>
-
-        <div class = "form-group">
-             <label for="txtcargo">Cargo</label>
-             <input type="text" required class="form-control" value="<?php echo $txtcargo; ?>" name="txtcargo" id="txtcargo" placeholder="Cargo de Empleado : ">
+             <input type="text"  class="form-control" value="<?php echo $txtapellido2; ?>" name="txtapellido2" id="txtapellido2" placeholder="Segundo Apellido : ">
         </div>
 
         <div class = "form-group">
              <label for="txtsalario">Salario</label>
-             <input type="text" required class="form-control" value="<?php echo $txtsalario; ?>" name="txtsalario" id="txtsalario" placeholder="Salario : ">
+             <input type="text"  class="form-control" value="<?php echo $txtsalario; ?>" name="txtsalario" id="txtsalario" placeholder="Salario : ">
         </div>
 
         <div class = "form-group">
              <label for="txtdireccion">Direccion</label>
-             <input type="text" required class="form-control" value="<?php echo $txtdireccion; ?>" name="txtdireccion" id="txtdireccion" placeholder="Diereccion : ">
+             <input type="text"  class="form-control" value="<?php echo $txtdireccion; ?>" name="txtdireccion" id="txtdireccion" placeholder="Diereccion : ">
         </div>
 
         <div class = "form-group">
              <label for="txtnumero_celular_empleado">Numero de Celular</label>
-             <input type="text"required  class="form-control" value="<?php echo $txtnumero_celular_empleado; ?> " name="txtnumero_celular_empleado" id="txtnumero_celular_empleado" placeholder="Celular : ">
+             <input type="text" class="form-control" value="<?php echo $txtnumero_celular_empleado; ?> " name="txtnumero_celular_empleado" id="txtnumero_celular_empleado" placeholder="Celular : ">
         </div>
 
        <div class="btn-group" role="group" aria-label="">
              <button type="submit" name="accion"<?php echo ($accion=="Seleccionar")?"disabled":""; ?> value="Agregar" class="btn btn-info">AGREGAR</button>
              <button type="submit" name="accion"<?php echo ($accion!="Seleccionar")?"disabled":""; ?> value="Modificar" class="btn btn-warning">MODIFICAR</button>
-             <button type="submit" name="accion"<?php echo ($accion!="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-info">CANCELAR</button>
+             <button type="submit" name="accion"<?php echo ($accion!="Seleccionar"&&$accion=="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-danger">CANCELAR</button>
        </div>
     </form>
 </div>
@@ -258,7 +244,6 @@ $listaempleado=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
                 <th>Nombre</th>
                 <th>Primer Apellido</th>
                 <th>Segundo Apellido</th>
-                <th>Cargo</th>
                 <th>Salario</th>
                 <th>Direccion</th>
                 <th>Celular</th>
@@ -277,7 +262,6 @@ $listaempleado=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
                 <td> <?php echo $empleado['nombre']?></td>
                 <td> <?php echo $empleado['apellido1']?></td>
                 <td> <?php echo $empleado['apellido2']?></td>
-                <td> <?php echo $empleado['cargo']?></td>
                 <td> <?php echo $empleado['salario']?></td>
                 <td> <?php echo $empleado['direccion']?></td>               
                 <td> <?php echo $empleado['numero_celular_empleado']?></td>
@@ -298,9 +282,6 @@ $listaempleado=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
     </div>
     </div>
 </div>
-
-
-
 
 <?php
 include("../template/pie.php");

@@ -103,7 +103,6 @@ INSERTAR CATEGORIA
  
 <form method="POST" enctype="multipart/form-data">
 
-
  <div class = "form-group">
       <label for="txtidCategoria">ID-CATEGORIA</label>
       <input type="text"required readonly class="form-control" value="<?php echo $txtidCategoria; ?> " name="txtidCategoria" id="txtidCategoria" placeholder="ID DE CATEGORIA : ">
@@ -117,7 +116,7 @@ INSERTAR CATEGORIA
  <div class="btn-group" role="group" aria-label="">
              <button type="submit" name="pulsar"<?php echo ($pulsar=="Seleccionar")?"disabled":""; ?> value="Agregar" class="btn btn-info">AGREGAR</button>
              <button type="submit" name="pulsar"<?php echo ($pulsar!="Seleccionar")?"disabled":""; ?> value="Modificar" class="btn btn-warning">MODIFICAR</button>
-             <button type="submit" name="pulsar"<?php echo ($pulsar!="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-info">CANCELAR</button>
+             <button type="submit" name="pulsar"<?php echo ($pulsar!="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-danger">CANCELAR</button>
        </div>
     </form>
 </div>
@@ -158,8 +157,7 @@ INSERTAR CATEGORIA
     </div>
     </div>
 </div>
-</div>
-</div>
+
 
 <div class="container">
         <br/>
@@ -187,39 +185,48 @@ include("../config/bd.php");
 switch($accion){
 
      
-          case "Agregar":
-              // Verificar si el modelo de televisor ya existe en la base de datos
-              $sentenciaSQL = $conexion->prepare("SELECT COUNT(*) AS count FROM productos WHERE modelo = ?");
-              $sentenciaSQL->bindParam(1, $txtmodelo);
-              $sentenciaSQL->execute();
-              $resultado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
-      
-              if ($resultado['count'] > 0) {
-                  
-                   echo "El modelo de televisor ya existe. Por favor, elija otro modelo.";
-              } else {
-      
-                  $sentenciaSQL = $conexion->prepare("INSERT INTO productos (imagen, Categoria_idCategoria, precio, marca, modelo, tamanio)  
-                      VALUES (?, ?, ?, ?, ?, ?)");
-                  $fecha = new DateTime();
-                  $nombreArchivo = ($txtimagen != "") ? $fecha->getTimestamp() . "_" . $_FILES["txtimagen"]["name"] : "imagen";
-                  $tmpimagen = $_FILES["txtimagen"]["tmp_name"];
-      
-                  if ($tmpimagen != "") {
-                      move_uploaded_file($tmpimagen, "../../img/" . $nombreArchivo);
-                  }
-      
-                  $sentenciaSQL->bindParam(1, $nombreArchivo);
-                  $sentenciaSQL->bindParam(2, $txtCategoria_idCategoria);
-                  $sentenciaSQL->bindParam(3, $txtprecio);
-                  $sentenciaSQL->bindParam(4, $txtmarca);
-                  $sentenciaSQL->bindParam(5, $txtmodelo);
-                  $sentenciaSQL->bindParam(6, $txttamanio);
-                  
-                  $sentenciaSQL->execute();
-                  header("Location:productos.php");
-              }
-              break;
+    case "Agregar":
+        $sentenciaSQL = $conexion->prepare("SELECT COUNT(*) AS count FROM productos WHERE modelo = ?");
+        $sentenciaSQL->bindParam(1, $txtmodelo);
+        $sentenciaSQL->execute();
+        $resultado = $sentenciaSQL->fetch(PDO::FETCH_ASSOC);
+    
+        if ($resultado['count'] > 0) {
+            // El modelo de televisor ya existe
+            // Puedes agregar aquí la lógica adicional o el mensaje de error si lo necesitas
+        } else {
+            $sentenciaSQL = $conexion->prepare("INSERT INTO productos (imagen, Categoria_idCategoria, precio, marca, modelo, tamanio)  
+                VALUES (?, ?, ?, ?, ?, ?)");
+            $fecha = new DateTime();
+            $nombreArchivo = ($txtimagen != "") ? $fecha->getTimestamp() . "_" . $_FILES["txtimagen"]["name"] : "imagen";
+            $tmpimagen = $_FILES["txtimagen"]["tmp_name"];
+    
+            if ($tmpimagen != "") {
+                move_uploaded_file($tmpimagen, "../../img/" . $nombreArchivo);
+            }
+    
+            $sentenciaSQL->bindParam(1, $nombreArchivo);
+            $sentenciaSQL->bindParam(2, $txtCategoria_idCategoria);
+            $sentenciaSQL->bindParam(3, $txtprecio);
+            $sentenciaSQL->bindParam(4, $txtmarca);
+            $sentenciaSQL->bindParam(5, $txtmodelo);
+            $sentenciaSQL->bindParam(6, $txttamanio);
+    
+            $sentenciaSQL->execute();
+            
+            // Limpiar los campos 
+            $txtID = "";
+            $txtimagen = "";
+            $txtCategoria_idCategoria = "";
+            $txtprecio = "";
+            $txtmarca = "";
+            $txtmodelo = "";
+            $txttamanio = "";
+    
+            @header("Location:productos.php");
+        }
+        break;
+    
       
           case "Modificar":
 
@@ -231,7 +238,7 @@ switch($accion){
       
               if ($resultado['count'] > 0) {
                   
-                   echo "El modelo de televisor ya existe para otro registro. Por favor, elija otro modelo.";
+                   //echo "El modelo de televisor ya existe ";
               } else {
       
                   $sentenciaSQL = $conexion->prepare("UPDATE productos SET imagen=?, Categoria_idCategoria=?, precio=?, marca=?, modelo=?, tamanio=? WHERE id=?");
@@ -253,12 +260,29 @@ switch($accion){
                   $sentenciaSQL->bindParam(7, $txtID);
                   
                   $sentenciaSQL->execute();
-                  header("Location:productos.php");
+                  $txtID = "";
+                  $txtimagen = "";
+                  $txtCategoria_idCategoria = "";
+                  $txtprecio = "";
+                  $txtmarca = "";
+                  $txtmodelo = "";
+                  $txttamanio = "";
+          
+                  @header("Location:productos.php");
+                  
               }
               break;
           
      case "Cancelar":
-               header("Location:productos.php");
+        $txtID = "";
+        $txtimagen = "";
+        $txtCategoria_idCategoria = "";
+        $txtprecio = "";
+        $txtmarca = "";
+        $txtmodelo = "";
+        $txttamanio = "";
+        
+               @header("Location:productos.php");
                break;
            
           break;
@@ -295,18 +319,18 @@ switch($accion){
           $sentenciaSQL->execute();
           $productos=$sentenciaSQL->fetch(PDO::FETCH_ASSOC);
 
-          if (isset($productos["imagen"])&&($productos["imagen"]!="imagen")){
+        /*  if (isset($productos["imagen"])&&($productos["imagen"]!="imagen")){
                if(file_exists("../../img/".$productos["imagen"])){
                     unlink("../../img/".$productos["imagen"]);
                }
-          }
+          }*/
 
           $sentenciaSQL= $conexion->prepare("DELETE FROM productos WHERE id=:id");
           $sentenciaSQL->bindParam(':id', $txtID);
           $sentenciaSQL->execute();
 
           
-          header("Location:productos.php");
+          @header("Location:productos.php");
 
           break;
 }
@@ -326,7 +350,7 @@ $listaProductos=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="card-body">
         
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" >
 
         <div class = "form-group">
              <label for="txtimagen">IMAGEN</label>
@@ -342,33 +366,33 @@ $listaProductos=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
 
         <div class = "form-group">
              <label for="txtCategoria_idCategoria">ID-Categoria</label>
-             <input type="text" required class="form-control" value="<?php echo $txtCategoria_idCategoria; ?>" name="txtCategoria_idCategoria" id="txtCategoria_idCategoria" placeholder="Categoria:">
+             <input type="text"  class="form-control" value="<?php echo $txtCategoria_idCategoria; ?>" name="txtCategoria_idCategoria" id="txtCategoria_idCategoria" placeholder="Categoria:">
         </div>
 
         <div class = "form-group">
              <label for="txtprecio">PRECIO</label>
-             <input type="text" required class="form-control" value="<?php echo $txtprecio; ?>" name="txtprecio" id="txtprecio" placeholder="PRECIO : ">
+             <input type="text"  class="form-control" value="<?php echo $txtprecio; ?>" name="txtprecio" id="txtprecio" placeholder="PRECIO : ">
         </div>
 
         <div class = "form-group">
              <label for="textmarca">MARCA:</label>
-             <input type="text" required class="form-control" value="<?php echo $txtmarca; ?>" name="txtmarca" id="txtmarca" placeholder="MARCA DEL TELEVISOR :">
+             <input type="text"  class="form-control" value="<?php echo $txtmarca; ?>" name="txtmarca" id="txtmarca" placeholder="MARCA DEL TELEVISOR :">
         </div>
 
         <div class = "form-group">
              <label for="txtmodelo">MODELO</label>
-             <input type="txt" required class="form-control" value="<?php echo $txtmodelo; ?>" name="txtmodelo" id="txtmodelo" placeholder="MODELO :">
+             <input type="txt"  class="form-control" value="<?php echo $txtmodelo; ?>" name="txtmodelo" id="txtmodelo" placeholder="MODELO :">
         </div>
 
         <div class = "form-group">
              <label for="txttamanio">TAMAÑO EN PULGADAS</label>
-             <input type="text" required class="form-control" value="<?php echo $txttamanio; ?>" name="txttamanio" id="txttamanio" placeholder="PULGADAS :">
+             <input type="text" class="form-control" value="<?php echo $txttamanio; ?>" name="txttamanio" id="txttamanio" placeholder="PULGADAS :">
         </div>
 
        <div class="btn-group" role="group" aria-label="">
              <button type="submit" name="accion"<?php echo ($accion=="Seleccionar")?"disabled":""; ?> value="Agregar" class="btn btn-info">AGREGAR</button>
              <button type="submit" name="accion"<?php echo ($accion!="Seleccionar")?"disabled":""; ?> value="Modificar" class="btn btn-warning">MODIFICAR</button>
-             <button type="submit" name="accion"<?php echo ($accion!="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-info">CANCELAR</button>
+             <button type="submit" name="accion"<?php echo ($accion!="Seleccionar"&&$accion=="Seleccionar")?"disabled":""; ?> value="Cancelar" class="btn btn-info">CANCELAR</button>
        </div>
     </form>
 </div>
